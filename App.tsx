@@ -14,6 +14,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import ExerciseSheet, { type SheetTarget } from './src/components/ExerciseSheet';
+import Meditation from './src/components/Meditation';
 import StickFigure from './src/components/StickFigure';
 import WaterTracker from './src/components/WaterTracker';
 import { ANIMS } from './src/data/anims';
@@ -165,6 +166,7 @@ function Home() {
   const today = isoDay();
   const [dayKey, setDayKey] = useState(() => WEEK.find((d) => d.iso === today)?.key ?? 'mon');
   const [target, setTarget] = useState<SheetTarget | null>(null);
+  const [meditating, setMeditating] = useState(false);
   const { checks } = useStore();
 
   const day = WEEK.find((d) => d.key === dayKey)!;
@@ -183,7 +185,12 @@ function Home() {
       <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 60 }}>
         <View style={s.header}>
           <Text style={s.brand}>BIOCOACH</Text>
-          <Text style={s.headerDate}>{dateLabel}</Text>
+          <View style={s.headerRight}>
+            <Pressable onPress={() => setMeditating(true)} hitSlop={8} style={s.meditateBtn}>
+              <Text style={s.meditateTxt}>Meditar</Text>
+            </Pressable>
+            <Text style={s.headerDate}>{dateLabel}</Text>
+          </View>
         </View>
 
         <DayStrip selected={dayKey} today={today} onSelect={(d) => setDayKey(d.key)} />
@@ -208,7 +215,17 @@ function Home() {
         <Notes />
       </ScrollView>
 
-      <ExerciseSheet target={target} date={date} onClose={() => setTarget(null)} />
+      <ExerciseSheet
+        target={target}
+        date={date}
+        onClose={() => setTarget(null)}
+        onMeditate={() => {
+          // Cerramos la ficha antes de abrir: dos modales encimados se llevan mal.
+          setTarget(null);
+          setMeditating(true);
+        }}
+      />
+      <Meditation visible={meditating} onClose={() => setMeditating(false)} />
       <StatusBar style="dark" />
     </SafeAreaView>
   );
@@ -259,8 +276,18 @@ export default function App() {
 const s = StyleSheet.create({
   loading: { flex: 1, backgroundColor: C.paper, alignItems: 'center', justifyContent: 'center' },
 
-  header: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   brand: { fontFamily: F.title, fontSize: 20, color: C.ink, letterSpacing: 1.5 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  meditateBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: R.md,
+    backgroundColor: C.card,
+    borderWidth: 1,
+    borderColor: C.hairline,
+  },
+  meditateTxt: { fontFamily: F.bodySemi, fontSize: 13, color: C.blue },
   headerDate: { fontFamily: F.mono, fontSize: 12, color: C.muted },
 
   strip: { flexDirection: 'row', gap: 6, marginTop: 18 },

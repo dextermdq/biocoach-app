@@ -49,6 +49,8 @@ Para verla en la compu, `npm run web`.
 - Marcar cada ejercicio como hecho, con contador del día.
 - Registro de peso y repeticiones por serie, historial y gráfico de progresión.
 - Tracker de agua: 8 vasos por día, se reinicia solo cada día.
+- Meditación guiada de 3 / 5 / 10 min: círculo que respira (4 s inhalar, 2 s
+  sostener, 6 s exhalar) y las frases de guía rotando por ciclo.
 - Notas de método (comida, progresión, abs, correr, aguante).
 
 Todo se guarda en el celular (AsyncStorage). No hay servidor ni login.
@@ -56,11 +58,10 @@ Todo se guarda en el celular (AsyncStorage). No hay servidor ni login.
 ## Falta (siguiente vuelta)
 
 - Notificaciones locales: entrenar, agua, Kegel de la noche.
-- Módulo de meditación guiada con el círculo que respira.
 - Sincronización con el calendario del celular.
 
-Las dos primeras sólo tienen sentido en la app instalada: en la versión web no
-hay notificaciones programadas ni acceso al calendario.
+Las dos sólo tienen sentido en la app instalada: en la versión web no hay
+notificaciones programadas ni acceso al calendario.
 
 ## Cómo está armado
 
@@ -75,6 +76,8 @@ src/lib/date.ts                fechas locales, sin UTC
 src/components/StickFigure.tsx motor de animación SVG
 src/components/ExerciseSheet.tsx  ficha del ejercicio y registro
 src/components/ProgressChart.tsx  gráfico de progresión
+src/components/WaterTracker.tsx   vasos de agua del día
+src/components/Meditation.tsx     meditación guiada (guion y círculo)
 ```
 
 ### Agregar o corregir una animación

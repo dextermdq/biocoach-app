@@ -37,10 +37,12 @@ export default function ExerciseSheet({
   target,
   date,
   onClose,
+  onMeditate,
 }: {
   target: SheetTarget | null;
   date: string;
   onClose: () => void;
+  onMeditate: () => void;
 }) {
   const { width } = useWindowDimensions();
   const { logs, addLog, removeLog, isDone, toggle } = useStore();
@@ -105,6 +107,12 @@ export default function ExerciseSheet({
             </View>
 
             {ex.cue ? <Text style={s.cue}>{ex.cue}</Text> : null}
+
+            {ex.anim === 'breath' ? (
+              <Pressable onPress={onMeditate} style={[s.meditate, { backgroundColor: target.color }]}>
+                <Text style={s.meditateTxt}>Empezar meditación guiada</Text>
+              </Pressable>
+            ) : null}
 
             <Pressable
               onPress={() => toggle(date, target.key)}
@@ -233,6 +241,13 @@ const s = StyleSheet.create({
     marginTop: 16,
   },
   cue: { fontFamily: F.body, fontSize: 14, lineHeight: 21, color: C.muted, marginTop: 14 },
+  meditate: {
+    marginTop: 16,
+    borderRadius: R.lg,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  meditateTxt: { fontFamily: F.bodySemi, fontSize: 15, color: '#fff' },
   doneBtn: {
     marginTop: 16,
     borderWidth: 1.5,
