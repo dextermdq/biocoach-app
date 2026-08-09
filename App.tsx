@@ -224,7 +224,7 @@ function Gate() {
 }
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Bricolage_700Bold: BricolageGrotesque_700Bold,
     Bricolage_600SemiBold: BricolageGrotesque_600SemiBold,
     Inter_400Regular,
@@ -234,7 +234,9 @@ export default function App() {
     Mono_700Bold: JetBrainsMono_700Bold,
   });
 
-  if (!fontsLoaded) {
+  // Si una tipografía no carga seguimos igual con la del sistema: quedarse en el
+  // spinner para siempre es peor que verse un poco distinto.
+  if (!fontsLoaded && !fontError) {
     return (
       <View style={s.loading}>
         <ActivityIndicator color={C.pine} />

@@ -2,6 +2,9 @@
 
 # dependencies
 node_modules/
+# El export web copia las tipografías a docs/assets/node_modules/: esas SÍ van al repo,
+# si no GitHub Pages las sirve con 404 y la app se queda cargando para siempre.
+!docs/assets/node_modules/
 
 # Expo
 .expo/
@@ -39,3 +42,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# capturas de depuración
+.playwright-mcp/
