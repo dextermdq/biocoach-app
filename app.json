@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "BioCoach",
+    "slug": "biocoach",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#EEF1EC",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#EEF1EC"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lucas.biocoach"
+    },
+    "android": {
+      "package": "com.lucas.biocoach",
+      "adaptiveIcon": {
+        "backgroundColor": "#EEF1EC",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "baseUrl": "/biocoach-app"
+    },
+    "plugins": ["expo-font"]
+  }
+}
