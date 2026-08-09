@@ -3,7 +3,27 @@
 App de entrenamiento personal. Semana fija de lunes a domingo, con animaciones de
 cada movimiento y registro de pesos para forzar la progresión.
 
-## Probarla en el celular
+## Usarla ahora: https://dextermdq.github.io/biocoach-app/
+
+Abrí ese link en el celular. Para que quede como una app en la pantalla de inicio:
+
+- **Android (Chrome):** menú ⋮ → *Agregar a pantalla principal*.
+- **iPhone (Safari):** compartir → *Agregar a inicio*.
+
+Abre a pantalla completa, sin la barra del navegador. Los datos (ejercicios hechos,
+pesos) se guardan en ese navegador: si la usás también con Expo Go, cada una lleva
+su propio registro por separado. Necesita conexión para abrir.
+
+### Publicar cambios
+
+```
+npm run build:web
+git add -A && git commit -m "..." && git push
+```
+
+GitHub Pages sirve la carpeta `docs/` de `main`. Tarda un minuto en actualizarse.
+
+## Probarla en el celular con Expo Go
 
 1. Instalá **Expo Go** desde Play Store / App Store.
 2. En la compu, dentro de esta carpeta:
