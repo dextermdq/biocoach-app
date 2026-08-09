@@ -3,6 +3,10 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 
 const K_CHECKS = 'bc:checks:v1';
 const K_LOGS = 'bc:logs:v1';
+const K_WATER = 'bc:water:v1';
+
+/** Vasos por día. */
+export const WATER_GOAL = 8;
 
 /** Una serie registrada. */
 export type LogEntry = {
@@ -19,15 +23,19 @@ export type LogEntry = {
 type Checks = Record<string, boolean>;
 /** exerciseId → series registradas, en orden cronológico */
 type Logs = Record<string, LogEntry[]>;
+/** YYYY-MM-DD → vasos tomados ese día */
+type Water = Record<string, number>;
 
 type Store = {
   ready: boolean;
   checks: Checks;
   logs: Logs;
+  water: Water;
   isDone: (date: string, key: string) => boolean;
   toggle: (date: string, key: string) => void;
   addLog: (exId: string, entry: Omit<LogEntry, 'at'>) => void;
   removeLog: (exId: string, at: number) => void;
+  setWater: (date: string, glasses: number) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -36,15 +44,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [checks, setChecks] = useState<Checks>({});
   const [logs, setLogs] = useState<Logs>({});
+  const [water, setWaterState] = useState<Water>({});
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const [c, l] = await AsyncStorage.multiGet([K_CHECKS, K_LOGS]);
+        const [c, l, w] = await AsyncStorage.multiGet([K_CHECKS, K_LOGS, K_WATER]);
         if (!alive) return;
         if (c[1]) setChecks(JSON.parse(c[1]));
         if (l[1]) setLogs(JSON.parse(l[1]));
+        if (w[1]) setWaterState(JSON.parse(w[1]));
       } catch {
         // Datos corruptos o primer arranque: seguimos con el estado vacío.
       } finally {
@@ -102,17 +112,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [persist]
   );
 
+  const setWater = useCallback(
+    (date: string, glasses: number) => {
+      setWaterState((prev) => {
+        const n = Math.max(0, Math.round(glasses));
+        const next = { ...prev };
+        // No guardamos los ceros: el objeto no crece con un día por cada vez que
+        // se abre la app.
+        if (n === 0) delete next[date];
+        else next[date] = n;
+        persist(K_WATER, next);
+        return next;
+      });
+    },
+    [persist]
+  );
+
   const value = useMemo<Store>(
     () => ({
       ready,
       checks,
       logs,
+      water,
       isDone: (date, key) => !!checks[`${date}|${key}`],
       toggle,
       addLog,
       removeLog,
+      setWater,
     }),
-    [ready, checks, logs, toggle, addLog, removeLog]
+    [ready, checks, logs, water, toggle, addLog, removeLog, setWater]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

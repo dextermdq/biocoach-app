@@ -15,6 +15,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import ExerciseSheet, { type SheetTarget } from './src/components/ExerciseSheet';
 import StickFigure from './src/components/StickFigure';
+import WaterTracker from './src/components/WaterTracker';
 import { ANIMS } from './src/data/anims';
 import { NOTES } from './src/data/notes';
 import { EXERCISES, WEEK, itemKey, type Block, type Day, type Item } from './src/data/program';
@@ -201,6 +202,8 @@ function Home() {
         {day.blocks.map((b) => (
           <BlockCard key={b.id} day={day} block={b} date={date} onOpen={setTarget} />
         ))}
+
+        <WaterTracker date={date} />
 
         <Notes />
       </ScrollView>

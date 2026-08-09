@@ -48,6 +48,7 @@ Para verla en la compu, `npm run web`.
 - Animación de cada movimiento: figura de línea, dos poses interpoladas en loop.
 - Marcar cada ejercicio como hecho, con contador del día.
 - Registro de peso y repeticiones por serie, historial y gráfico de progresión.
+- Tracker de agua: 8 vasos por día, se reinicia solo cada día.
 - Notas de método (comida, progresión, abs, correr, aguante).
 
 Todo se guarda en el celular (AsyncStorage). No hay servidor ni login.
@@ -56,8 +57,10 @@ Todo se guarda en el celular (AsyncStorage). No hay servidor ni login.
 
 - Notificaciones locales: entrenar, agua, Kegel de la noche.
 - Módulo de meditación guiada con el círculo que respira.
-- Tracker de agua.
 - Sincronización con el calendario del celular.
+
+Las dos primeras sólo tienen sentido en la app instalada: en la versión web no
+hay notificaciones programadas ni acceso al calendario.
 
 ## Cómo está armado
 
