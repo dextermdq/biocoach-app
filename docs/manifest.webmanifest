@@ -1,0 +1,25 @@
+{
+  "name": "BioCoach",
+  "short_name": "BioCoach",
+  "description": "Tu semana de entrenamiento, con animaciones y registro de pesos.",
+  "start_url": "/biocoach-app/",
+  "scope": "/biocoach-app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEF1EC",
+  "theme_color": "#EEF1EC",
+  "icons": [
+    {
+      "src": "/biocoach-app/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/biocoach-app/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
