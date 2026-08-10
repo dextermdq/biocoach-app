@@ -14,6 +14,9 @@ Abre a pantalla completa, sin la barra del navegador. Los datos (ejercicios hech
 pesos) se guardan en ese navegador: si la usás también con Expo Go, cada una lleva
 su propio registro por separado. Necesita conexión para abrir.
 
+**Ojo: la versión web no manda avisos.** Para los recordatorios hay que usar la app
+instalada, ver *Avisos* más abajo.
+
 ### Publicar cambios
 
 ```
@@ -51,17 +54,41 @@ Para verla en la compu, `npm run web`.
 - Tracker de agua: 8 vasos por día, se reinicia solo cada día.
 - Meditación guiada de 3 / 5 / 10 min: círculo que respira (4 s inhalar, 2 s
   sostener, 6 s exhalar) y las frases de guía rotando por ciclo.
+- Avisos al celular: entrenar, agua y Kegel de la noche (sólo app instalada).
 - Notas de método (comida, progresión, abs, correr, aguante).
 
 Todo se guarda en el celular (AsyncStorage). No hay servidor ni login.
 
-## Falta (siguiente vuelta)
+## Avisos
 
-- Notificaciones locales: entrenar, agua, Kegel de la noche.
-- Sincronización con el calendario del celular.
+La campana del encabezado abre los recordatorios. Tres, cada uno con su horario:
 
-Las dos sólo tienen sentido en la app instalada: en la versión web no hay
-notificaciones programadas ni acceso al calendario.
+- **Entrenar** — un aviso por día, con el título del día (fuerza, caminata, cierre).
+  Se elige la hora y en qué días avisa. Por defecto 18:00, de lunes a viernes.
+- **Agua** — varios avisos por día, editables y se pueden sumar o sacar.
+  Por defecto 10, 13, 16 y 19 h.
+- **Kegel de la noche** — todos los días. Por defecto 22:00.
+
+Son **notificaciones locales**: las agenda el propio celular. Llegan sin internet y
+con la app cerrada, y no hay servidor ni cuenta de por medio. La contra es que sólo
+existen en la app instalada:
+
+| Dónde                        | ¿Avisos? |
+| ---------------------------- | -------- |
+| Web (GitHub Pages / pantalla de inicio) | No. El navegador no puede avisar si no está abierto. |
+| Expo Go                      | Sí. Sirve para probarlos hoy mismo. |
+| APK instalado (EAS build)    | Sí. Es la forma definitiva. |
+
+En la web la pantalla de avisos lo dice y deja configurar los horarios igual: quedan
+guardados para cuando abras la app instalada en ese mismo dispositivo.
+
+En Android, la primera vez que prendés un aviso el sistema pide permiso. Si lo
+negaste antes, la pantalla ofrece un botón para abrir los ajustes del sistema. El
+botón *Probar un aviso* manda uno a los 5 segundos para verificar que llegan.
+
+Si el ahorro de batería del teléfono es agresivo (Xiaomi, Samsung y Huawei suelen
+serlo), Android puede atrasar los avisos unos minutos o directamente comérselos:
+en ese caso hay que sacar BioCoach de la optimización de batería.
 
 ## Cómo está armado
 
@@ -71,13 +98,17 @@ src/theme.ts                   paleta, tipografías, radios
 src/data/program.ts            catálogo de ejercicios + semana
 src/data/anims.ts              las poses de cada figura animada
 src/data/notes.ts              textos de método
-src/lib/store.tsx              estado persistente (checks + logs)
+src/lib/store.tsx              estado persistente (checks + logs + avisos)
 src/lib/date.ts                fechas locales, sin UTC
+src/lib/reminders.ts           qué avisos hay y a qué hora (lógica pura)
+src/lib/notify.native.ts       programa los avisos en el celular
+src/lib/notify.web.ts          en el navegador no hay avisos: no hace nada
 src/components/StickFigure.tsx motor de animación SVG
 src/components/ExerciseSheet.tsx  ficha del ejercicio y registro
 src/components/ProgressChart.tsx  gráfico de progresión
 src/components/WaterTracker.tsx   vasos de agua del día
 src/components/Meditation.tsx     meditación guiada (guion y círculo)
+src/components/Reminders.tsx      pantalla de avisos (switches y horarios)
 ```
 
 ### Agregar o corregir una animación
@@ -90,11 +121,26 @@ y en `b`**, si no la interpolación no cierra.
 
 ### Instalar la app de verdad (sin Expo Go)
 
+Es lo que hace falta para tener los avisos sin depender de la compu.
+
 ```
-npx eas build --platform android --profile preview
+npm install -g eas-cli
+eas login                 # cuenta de Expo, gratis
+eas init                  # engancha el proyecto (una sola vez)
+eas build --platform android --profile preview
 ```
 
-Requiere cuenta de Expo. Tarda y se hace en la nube; deja un `.apk` para instalar.
+Tarda unos 15 minutos y se hace en la nube. Al terminar da un link con el `.apk`:
+se abre desde el celular, Android pide permitir instalar de esa fuente y queda como
+una app más. `eas.json` ya trae el perfil `preview` configurado para que salga apk y
+no un `.aab` (que sólo sirve para publicar en Play Store).
+
+Cada cambio de código necesita un build nuevo. Lo que no toca código nativo se puede
+mandar con `eas update`, pero eso requiere configurar OTA aparte.
+
+### Falta (siguiente vuelta)
+
+- Sincronización con el calendario del celular (sólo tiene sentido en la app instalada).
 
 ## Aviso
 

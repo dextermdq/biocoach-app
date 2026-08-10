@@ -32,6 +32,16 @@
     "experiments": {
       "baseUrl": "/biocoach-app"
     },
-    "plugins": ["expo-font"]
+    "plugins": [
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#2F6D5F",
+          "defaultChannel": "reminders"
+        }
+      ]
+    ]
   }
 }

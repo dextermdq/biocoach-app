@@ -9,20 +9,45 @@ import { JetBrainsMono_500Medium } from '@expo-google-fonts/jetbrains-mono/500Me
 import { JetBrainsMono_700Bold } from '@expo-google-fonts/jetbrains-mono/700Bold';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
 import ExerciseSheet, { type SheetTarget } from './src/components/ExerciseSheet';
 import Meditation from './src/components/Meditation';
+import Reminders from './src/components/Reminders';
 import StickFigure from './src/components/StickFigure';
 import WaterTracker from './src/components/WaterTracker';
 import { ANIMS } from './src/data/anims';
 import { NOTES } from './src/data/notes';
 import { EXERCISES, WEEK, itemKey, type Block, type Day, type Item } from './src/data/program';
 import { dateOfIsoDayThisWeek, isoDay, shortDate, ymd } from './src/lib/date';
+import { applySchedules } from './src/lib/notify';
+import { buildSchedules } from './src/lib/reminders';
 import { StoreProvider, useStore } from './src/lib/store';
 import { BLOCK_COLOR, C, F, R } from './src/theme';
+
+function Bell({ on }: { on: boolean }) {
+  return (
+    <Svg width={17} height={17} viewBox="0 0 24 24">
+      <Path
+        d="M12 3.5a5.5 5.5 0 0 0-5.5 5.5c0 3.2-.7 5-1.6 6.1-.4.5 0 1.2.6 1.2h13c.6 0 1-.7.6-1.2-.9-1.1-1.6-2.9-1.6-6.1A5.5 5.5 0 0 0 12 3.5Z"
+        fill={on ? C.pine : 'none'}
+        stroke={on ? C.pine : C.muted}
+        strokeWidth={1.7}
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M10 19a2 2 0 0 0 4 0"
+        fill="none"
+        stroke={on ? C.pine : C.muted}
+        strokeWidth={1.7}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
 
 function DayStrip({
   selected,
@@ -167,7 +192,20 @@ function Home() {
   const [dayKey, setDayKey] = useState(() => WEEK.find((d) => d.iso === today)?.key ?? 'mon');
   const [target, setTarget] = useState<SheetTarget | null>(null);
   const [meditating, setMeditating] = useState(false);
-  const { checks } = useStore();
+  const [remindersOpen, setRemindersOpen] = useState(false);
+  const { checks, prefs } = useStore();
+
+  // Los avisos se reprograman enteros cada vez que cambian las preferencias.
+  // El respiro agrupa la ráfaga de toques del selector de hora en una sola
+  // reprogramación.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      applySchedules(buildSchedules(prefs)).catch(() => {});
+    }, 400);
+    return () => clearTimeout(t);
+  }, [prefs]);
+
+  const anyReminder = prefs.train.on || prefs.water.on || prefs.kegel.on;
 
   const day = WEEK.find((d) => d.key === dayKey)!;
   const date = useMemo(() => ymd(dateOfIsoDayThisWeek(day.iso)), [day.iso]);
@@ -188,6 +226,14 @@ function Home() {
           <View style={s.headerRight}>
             <Pressable onPress={() => setMeditating(true)} hitSlop={8} style={s.meditateBtn}>
               <Text style={s.meditateTxt}>Meditar</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setRemindersOpen(true)}
+              hitSlop={8}
+              style={s.bellBtn}
+              accessibilityLabel="Avisos"
+            >
+              <Bell on={anyReminder} />
             </Pressable>
             <Text style={s.headerDate}>{dateLabel}</Text>
           </View>
@@ -226,6 +272,7 @@ function Home() {
         }}
       />
       <Meditation visible={meditating} onClose={() => setMeditating(false)} />
+      <Reminders visible={remindersOpen} onClose={() => setRemindersOpen(false)} />
       <StatusBar style="dark" />
     </SafeAreaView>
   );
@@ -288,6 +335,16 @@ const s = StyleSheet.create({
     borderColor: C.hairline,
   },
   meditateTxt: { fontFamily: F.bodySemi, fontSize: 13, color: C.blue },
+  bellBtn: {
+    width: 32,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: R.md,
+    backgroundColor: C.card,
+    borderWidth: 1,
+    borderColor: C.hairline,
+  },
   headerDate: { fontFamily: F.mono, fontSize: 12, color: C.muted },
 
   strip: { flexDirection: 'row', gap: 6, marginTop: 18 },

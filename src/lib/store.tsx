@@ -1,9 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
+import { DEFAULT_PREFS, normalizePrefs, type Prefs } from './reminders';
+
 const K_CHECKS = 'bc:checks:v1';
 const K_LOGS = 'bc:logs:v1';
 const K_WATER = 'bc:water:v1';
+const K_NOTIF = 'bc:notif:v1';
 
 /** Vasos por día. */
 export const WATER_GOAL = 8;
@@ -31,11 +34,13 @@ type Store = {
   checks: Checks;
   logs: Logs;
   water: Water;
+  prefs: Prefs;
   isDone: (date: string, key: string) => boolean;
   toggle: (date: string, key: string) => void;
   addLog: (exId: string, entry: Omit<LogEntry, 'at'>) => void;
   removeLog: (exId: string, at: number) => void;
   setWater: (date: string, glasses: number) => void;
+  setPrefs: (update: (prev: Prefs) => Prefs) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -45,16 +50,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [checks, setChecks] = useState<Checks>({});
   const [logs, setLogs] = useState<Logs>({});
   const [water, setWaterState] = useState<Water>({});
+  const [prefs, setPrefsState] = useState<Prefs>(DEFAULT_PREFS);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const [c, l, w] = await AsyncStorage.multiGet([K_CHECKS, K_LOGS, K_WATER]);
+        const [c, l, w, n] = await AsyncStorage.multiGet([K_CHECKS, K_LOGS, K_WATER, K_NOTIF]);
         if (!alive) return;
         if (c[1]) setChecks(JSON.parse(c[1]));
         if (l[1]) setLogs(JSON.parse(l[1]));
         if (w[1]) setWaterState(JSON.parse(w[1]));
+        if (n[1]) setPrefsState(normalizePrefs(JSON.parse(n[1])));
       } catch {
         // Datos corruptos o primer arranque: seguimos con el estado vacío.
       } finally {
@@ -128,19 +135,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [persist]
   );
 
+  const setPrefs = useCallback(
+    (update: (prev: Prefs) => Prefs) => {
+      setPrefsState((prev) => {
+        const next = update(prev);
+        persist(K_NOTIF, next);
+        return next;
+      });
+    },
+    [persist]
+  );
+
   const value = useMemo<Store>(
     () => ({
       ready,
       checks,
       logs,
       water,
+      prefs,
       isDone: (date, key) => !!checks[`${date}|${key}`],
       toggle,
       addLog,
       removeLog,
       setWater,
+      setPrefs,
     }),
-    [ready, checks, logs, water, toggle, addLog, removeLog, setWater]
+    [ready, checks, logs, water, prefs, toggle, addLog, removeLog, setWater, setPrefs]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
