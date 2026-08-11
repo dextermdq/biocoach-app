@@ -42,6 +42,12 @@
           "defaultChannel": "reminders"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8c733e03-6648-433f-a423-9ef674bbc3a3"
+      }
+    },
+    "owner": "dextermdq"
   }
 }
